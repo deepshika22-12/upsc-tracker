@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>UPSC CSE Tracker</title>
+<style>
+:root{--bg:#f3f5f9;--card:#fff;--tx:#14213d;--mut:#6b7587;--nav:#14213d;--g:#2e9e6a;--gl:#e6f6ee;--br:#e1e5ee;--am:#d98a00;--rd:#d64545;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0d1424;--card:#16203a;--tx:#e8ecf5;--mut:#98a3bb;--br:#26324f;--gl:#14382b}}
+:root[data-theme=dark]{--bg:#0d1424;--card:#16203a;--tx:#e8ecf5;--mut:#98a3bb;--br:#26324f;--gl:#14382b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 system-ui,sans-serif;display:flex;min-height:100vh}
+nav{width:210px;background:var(--nav);color:#fff;padding:14px 10px;position:sticky;top:0;height:100vh;overflow:auto;flex:none}
+nav h1{font-size:16px;margin:4px 8px 12px}nav button{display:block;width:100%;text-align:left;background:none;border:0;color:#cfd6e6;padding:9px 10px;border-radius:10px;font:inherit;cursor:pointer}
+nav button.on,nav button:hover{background:#25355f;color:#fff}
+main{flex:1;padding:18px;min-width:0;max-width:1100px}
+.card{background:var(--card);border:1px solid var(--br);border-radius:16px;padding:14px;margin:0 0 12px;box-shadow:0 2px 8px #0001}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:12px}.grid .card{margin:0}
+.big{font-size:24px;font-weight:700}.mut{color:var(--mut);font-size:13px}
+.bar{height:8px;background:var(--br);border-radius:9px;overflow:hidden;margin:6px 0}.bar i{display:block;height:100%;background:var(--g);transition:width .3s}
+details{border:1px solid var(--br);border-radius:12px;margin:8px 0;background:var(--card)}summary{cursor:pointer;padding:10px 12px;font-weight:600}
+details>div{padding:0 10px 10px}
+.row{border:1px solid var(--br);border-radius:12px;padding:10px;margin:8px 0;display:grid;gap:6px}
+.row.done{background:var(--gl);border-color:var(--g)}
+.line{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.badge{font-size:12px;padding:2px 9px;border-radius:20px;background:var(--br)}.badge.c{background:var(--g);color:#fff}.badge.p{background:var(--am);color:#fff}
+button.b,select,input,textarea{font:inherit;color:var(--tx);background:var(--card);border:1px solid var(--br);border-radius:8px;padding:5px 9px}
+button.b{cursor:pointer}button.b.pri{background:var(--g);color:#fff;border-color:var(--g)}
+input[type=checkbox]{width:18px;height:18px;accent-color:var(--g)}
+textarea,input.w{width:100%}.live{color:var(--g);font-weight:700}
+table{width:100%;border-collapse:collapse;font-size:13px}td,th{border-bottom:1px solid var(--br);padding:5px;text-align:left}
+.fg{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+@media(max-width:760px){body{display:block}nav{width:100%;height:auto;position:static;display:flex;overflow-x:auto;gap:4px}nav h1{display:none}nav button{width:auto;white-space:nowrap}}
+</style></head><body>
+<nav id="nav"></nav>
+<main><div class="line" style="margin-bottom:12px"><input id="q" class="w" style="flex:1" placeholder="Search paper, subject, topic, subtopic, notes…"><button class="b" id="dk">🌓</button></div><div id="m"></div></main>
+<script>
+/* ===== EMBEDDED SYLLABUS (constant; ## Paper, ### Subject, plain line = Topic, "- " = Subtopic). Papers are in final order; new subjects are added inside their paper block. ===== */
+const DEF=`## PRELIMS GS PAPER I SYLLABUS
+Current Affairs: Current events of national and international importance.
+History: History of India and the Indian National Movement.
+Geography: Indian and World Geography – Physical, Social, and Economic Geography of India and the World.
+Polity & Governance: Constitution, Political System, Panchayati Raj, Public Policy, Rights Issues, etc.
+Economy & Social Development: Sustainable Development, Poverty, Inclusion, Demographics, Social Sector Initiatives, etc.
+Environment: General issues on Environmental Ecology, Biodiversity, and Climate Change.
+General Science: Basic scientific concepts and everyday applications.
+## PRELIMS CSAT SYLLABUS
+Comprehension: Reading passages and inference-based questions.
+Interpersonal & Communication Skills: Assessing situational communication and social understanding.
+Logical Reasoning & Analytical Ability: Pattern recognition, deduction, and logical sequences.
+Decision Making & Problem Solving: Administrative and ethical scenario resolution.
+General Mental Ability: Puzzles, blood relations, directions, and seating arrangements.
+Basic Numeracy: Numbers and their relations, orders of magnitude, percentages, ratios, etc.
+Data Interpretation: Charts, graphs, tables, and data sufficiency.
+## MAINS ESSAY
+## MAINS GS PAPER I SYLLABUS
+## MAINS GS PAPER II SYLLABUS
+## MAINS GS PAPER III SYLLABUS
+### Science & Technology
+Developments & Their Applications & Effects in Everyday Life
+- Chemicals in Food
+- Artificial Sweetening Agents
+- Food Preservatives
+- Drugs
+- Antacid
+- Antihistamines
+- Neurologically Active Drugs
+- Tranquilizers
+- Analgesics
+- Antimicrobials
+- Antibiotics
+- Antiseptic and Disinfectant
+- Anti-Fertility Drugs, etc.
+- Cleansing Agents
+- Soaps
+- Synthetic Detergents
+- Glass
+- Water Softener
+- Water Purification/Disinfection
+- Microwave Oven, etc.
+Achievements of Indians in Science & Technology
+- Chandrasekhara Venkata Raman
+- Acharya Jagadish Chandra Bose
+- Satyendra Nath Bose
+- Meghnad Saha
+- Homi Jehangir Bhabha
+- Subrahmanyan Chandrasekhar
+- A.P.J. Abdul Kalam
+- Vikram Sarabhai
+- Mokshagundam Visvesvaraya
+- Har Gobind Khorana
+- Tessy Thomas
+- C.N.R. Rao
+Indigenization of Technology & Developing New Technology
+- IT & Computers
+- Space
+- Nanotechnology
+- Biotechnology
+- Robotics
+- Defence
+- Nuclear
+Awareness in Different Fields
+- IT & Computers
+- Space
+- Nanotechnology
+- Biotechnology
+- Robotics
+- Defence
+- Nuclear
+Issues Relating to Intellectual Property Rights
+- Need for Intellectual Property Rights
+- Types of IPR
+- IPR Regime in India
+- International Agreements Related to IPRs
+- Geographical Indicators
+- Recent Issues – Evergreening, Compulsory Licensing, Prominent Cases etc.
+### Biodiversity & Environment
+Conservation
+- What Is Biodiversity?
+- Types of Biodiversity – Genetic, Species, Ecosystem, etc.
+- Importance of Biodiversity – Ecosystem Services, Bio Resources of Economic Importance, Social Benefits etc.
+- Reasons for Loss of Biodiversity
+- Conservation
+- In-situ & Ex-Situ
+- Eco-Sensitive Areas
+- Ecological Hotspots
+- National Guidelines, Legislations & Other Programmes
+- International Agreements & Groupings
+Environmental Pollution & Degradation
+- Types of Pollution & Pollutants
+- Impact of Pollution & Degradation
+- Ozone Layer Depletion and Ozone Hole
+- Greenhouse Gas Effect & Global Warming
+- Eutrophication
+- Desertification
+- Acid Rain
+- Hazardous Waste, etc.
+- Causes/Sources of Pollution & Degradation
+- Prevention & Control of Pollution & Degradation
+- National Environment Agencies, Legislations and Policies
+- International Environment Agencies & Agreements
+Environmental Impact Assessment (EIA)
+- What Is EIA?
+- Indian Guidelines & Legislations
+- EIA Process
+- Need & Benefits of EIA
+- Shortcomings of EIA in India
+- Measures to Make EIA Effective
+Disaster Management
+- Types of Disasters
+- Management of Disasters
+- Community Level Disaster Management
+- Government Initiatives on Disaster Management
+### Security
+Linkages Between Development & Spread of Extremism
+- Factors Responsible for Spread of Extremism
+- Steps That State Can Take to Reduce the Spread of Extremism Due to Underdevelopment
+- Naxalism
+Role of External State & Non-State Actors in Creating Challenges to Internal Security
+- Threats from Non-State Actors
+- J&K Separatism
+- Left Wing Extremism
+- North East Insurgency
+- Terrorism in Hinterland & Border Areas
+- Right Wing Terrorism
+- Reasons for Spread of Terrorism
+- State Sponsored Terrorism
+- Institutional Framework to Tackle Challenge of Internal Security
+- NIA
+- NATGRID
+- MAC
+- UAPA
+- TADA
+- POTA
+- NCTC
+Challenges to Internal Security Through Communication Networks
+- Role of Media & Social Networking Sites in Internal Security Challenges
+- Challenges in Managing Social Media
+- Steps That Can Be Taken
+Basics of Cyber Security
+- Cyber Security
+- Threats to Indian Cyber Security
+- Steps Taken by India
+- International Cooperation on Cyber Security
+- Cyber Warfare
+- Terms Associated with Cyber Security
+Money-Laundering & Its Prevention
+- Process of Money Laundering
+- Impact of Money Laundering
+- Challenges to Tackle Money Laundering
+- Steps to Counter Money Laundering
+- Terms Related to Money Laundering
+Security Challenges & Their Management in Border Areas
+- Challenges in Managing Border Security – Coastal & Terrestrial
+- Land Boundary Disputes with Neighbours
+- India’s Policy in Border Area Security Management
+Linkages of Organized Crime with Terrorism
+- Types of Organised Crime
+- Challenges in Controlling Organised Crime
+- Indian Context – Link Between Organised Crime & Terrorism
+Various Security Forces & Agencies & Their Mandate
+- Central Armed Police Forces
+- Central Paramilitary Forces
+- Security & Intelligence Agencies – IB, R&AW, etc.
+## MAINS GS PAPER IV SYLLABUS
+### Ethics and Human Interface
+Ethics and Human Interface
+- Essence of Ethics
+- Determinants of Ethics
+- Consequences of Ethics in Human Actions
+- Dimensions of Ethics
+- Ethics in Private Relationships
+- Ethics in Public Relationships
+Human Values
+- Lessons from the Lives and Teachings of Great Leaders
+- Lessons from the Lives and Teachings of Reformers
+- Lessons from the Lives and Teachings of Administrators
+- Role of Family in Inculcating Values
+- Role of Society in Inculcating Values
+- Role of Educational Institutions in Inculcating Values
+### Attitude
+Attitude
+- Content of Attitude
+- Structure of Attitude
+- Function of Attitude
+- Influence of Attitude on Thought and Behaviour
+- Relation of Attitude with Thought and Behaviour
+- Moral Attitudes
+- Political Attitudes
+- Social Influence
+- Persuasion
+### Aptitude and Foundational Values for Civil Service
+Aptitude and Foundational Values for Civil Service
+- Integrity
+- Impartiality
+- Non-partisanship
+- Objectivity
+- Dedication to Public Service
+- Empathy
+- Tolerance
+- Compassion Towards Weaker Sections
+### Emotional Intelligence
+Emotional Intelligence
+- Concept of Emotional Intelligence
+- Utilities of Emotional Intelligence
+- Application in Administration and Governance
+### Contributions of Moral Thinkers and Philosophers
+Contributions of Moral Thinkers and Philosophers from India and World
+- Indian Moral Thinkers
+- World Moral Thinkers
+- Indian Philosophers
+- World Philosophers
+- Ethical Teachings and Their Relevance
+### Public/Civil Service Values and Ethics in Public Administration
+Public/Civil Service Values and Ethics in Public Administration
+- Status and Problems
+- Ethical Concerns and Dilemmas in Government Institutions
+- Ethical Concerns and Dilemmas in Private Institutions
+- Laws, Rules, Regulations and Conscience as Sources of Ethical Guidance
+- Accountability
+- Ethical Governance
+- Strengthening of Ethical and Moral Values in Governance
+- Ethical Issues in International Relations
+- Ethical Issues in Funding
+- Corporate Governance
+### Probity in Governance
+Probity in Governance
+- Concept of Public Service
+- Philosophical Basis of Governance and Probity
+- Information Sharing and Transparency
+- Right to Information
+- Codes of Ethics
+- Codes of Conduct
+- Citizens’ Charters
+- Work Culture
+- Quality of Service Delivery
+- Utilisation of Public Funds
+- Challenges of Corruption
+### Case Studies
+Case Studies on Above Issues
+- Ethical Dilemmas
+- Governance Issues
+- Public Service Dilemmas
+- Conflict Resolution
+- Integrity-Related Case Studies
+- Administrative Decision-Making`;
+const K='upsc_tracker_v1',INT=[3,7,15,30,60],$=s=>document.querySelector(s);
+const e=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let S={};try{S=JSON.parse(localStorage.getItem(K))||{}}catch(x){}
+S.items??={};S.logs??={};S.set??={target:'2028-05-25',weekly:40,daily:6,fm:25,bm:5,lm:15};S.pm??={mode:'f',on:0,end:0,n:0,done:{},sel:''};
+S.cu??={I:['DAF-based preparation','Current affairs','Home state','Educational background','Work experience','Hobbies','Optional subject','Mock interview feedback','Communication and body language'],O:[]};S.syl??=DEF;S.opt??='';
+const save=()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(x){}};
+const D0={n:0,l:0,r:0,c:'Medium',y:'Not asked',t:'',d:'',sec:0,h:[],nx:'',cnt:0};
+const g=k=>S.items[k]||D0,it=k=>S.items[k]??={...D0,h:[]};
+const td=(o=0)=>new Date(Date.now()-new Date().getTimezoneOffset()*6e4+o*864e5).toISOString().slice(0,10);
+const fmt=s=>{let m=Math.round(s/60);return m<60?m+' min':Math.floor(m/60)+' hr'+(m%60?' '+m%60+' min':'')};
+/* ===== SYLLABUS PARSER & INDEX ===== */
+let T=[],L=[];
+function buildLegacy(){T=[];let P,Su,To;
+for(const raw of DEF.split('\n')){const l=raw.trim();if(!l||/^# /.test(l))continue;
+if(l.startsWith('## ')){const n=l.slice(3);P={n,st:/PRELIMS/i.test(n)?'Prelims':/MAINS/i.test(n)?'Mains':'Other',su:[]};T.push(P);Su=To=null}
+else if(!P)continue;else if(l.startsWith('### ')){Su={n:l.slice(4),to:[]};P.su.push(Su);To=null}
+else if(l.startsWith('- ')){if(To)To.s.push(l.slice(2))}
+else{if(!Su){Su={n:P.n,to:[]};P.su.push(Su)}To={n:l,s:[]};Su.to.push(To)}}
+L=[];T.forEach((P,pi)=>P.su.forEach((Su,si)=>Su.to.forEach((To,ti)=>(To.s.length?To.s:[To.n]).forEach((n,xi)=>L.push({k:`${P.n}|${Su.n}|${To.n}|${xi}`,n,pi,si,ti,st:P.st,path:[P.n,Su.n,To.n].join(' › ')})))))}
+/* ===== UPSC_SYLLABUS: embedded constant, Paper → Subject → Topic → Subtopic. Mains GS I and GS II are filled in by later updates. ===== */
+const tp=(topic,subtopics)=>({topic,subtopics}),sb=(subject,...topics)=>({subject,topics});
+const UPSC_SYLLABUS={prelims:{gsPaper1:[
+sb("Current Affairs",tp("Current Affairs",["Current events of national importance","Current events of international importance"])),
+sb("History",tp("History of India and Indian National Movement",["Ancient India","Medieval India","Modern India","Indian National Movement"])),
+sb("Geography",tp("Indian and World Geography",["Physical Geography","Social Geography","Economic Geography","Geography of India","Geography of the World"])),
+sb("Polity and Governance",tp("Constitution, Political System, Panchayati Raj, Public Policy and Rights Issues",["Indian Constitution","Political System","Panchayati Raj","Public Policy","Rights Issues"])),
+sb("Economy and Social Development",tp("Sustainable Development, Poverty, Inclusion, Demographics and Social Sector Initiatives",["Sustainable Development","Poverty","Inclusion","Demographics","Social Sector Initiatives"])),
+sb("Environment",tp("Environmental Ecology, Biodiversity and Climate Change",["Environmental Ecology","Biodiversity","Climate Change"])),
+sb("General Science",tp("Basic Science and Everyday Applications",["Physics","Chemistry","Biology","Everyday Applications of Science"]))],
+csat:[
+sb("Comprehension",tp("Reading Comprehension",["Reading passages","Inference-based questions"])),
+sb("Interpersonal and Communication Skills",tp("Communication and Social Understanding",["Interpersonal skills","Communication skills","Situational judgement"])),
+sb("Logical Reasoning and Analytical Ability",tp("Reasoning and Analytical Ability",["Pattern recognition","Deduction","Logical sequences"])),
+sb("Decision Making and Problem Solving",tp("Decision Making",["Administrative scenarios","Ethical scenario resolution"])),
+sb("General Mental Ability",tp("Mental Ability",["Puzzles","Blood relations","Directions","Seating arrangements"])),
+sb("Basic Numeracy",tp("Class X Level Numeracy",["Numbers and their relations","Orders of magnitude","Percentages","Ratios","Other Class X level numerical topics"])),
+sb("Data Interpretation",tp("Data Interpretation",["Charts","Graphs","Tables","Data sufficiency"]))]},
+mains:{essay:[sb("Essay",tp("Essay Writing",["Philosophy and abstract themes","Governance and democracy","Social issues","Economy and development","Environment and sustainability","Science and technology","International relations","Ethics and human values","Women, youth and education","India and the world"]))],
+gsPaper1:[
+sb("Art & Culture",
+tp("Indian Art Forms",["Indian Paintings","Mural Paintings","Miniature Paintings","Mughal, Rajput, Pahari Paintings","Dances in India","Classical Dance Forms","Folk Dance Forms","Modern Dance","Music","Classical Music","Folk Music","Puppetry","String Puppets","Shadow Puppets","Rod Puppets","Glove Puppets","Modern Puppetry","Tribal Puppetry","Pottery","Ochre Coloured Pottery (OCP)","Black and Red Ware (BRW)","Painted Grey Ware (PGW)","Northern Black Polished Ware (NBPW)","Glazed and Unglazed Pottery","Drama/Theatre","Classical Sanskrit Theatre","Regional Theatre","Modern Theatre","Martial Arts","Thang Ta","Gatka","Kalaripayattu","Mallakhamb","Silambam","Other Important Martial Arts","Visual Art","Sculptures of Harappan Civilization","Sculptures of the Mauryan Age","Post-Mauryan Period","Jain Sculptures","Buddhist Sculpture","Gupta Sculpture","Medieval School of Sculpture","Modern Indian Sculpture"]),
+tp("Bhakti & Sufi Movements",["Spread of Bhakti and Sufi Movements","Women Poets of Bhakti"]),
+tp("Literature",["Classical Sanskrit Literature","Vedas, Upanishads, Puranas","Books written by Kalidasa, Vishakhadatta etc.","Ancient Buddhist Literature","Ancient Jainism Literature","Early Dravidian Literature (Sangam Period)","Medieval Literature","Trends in Medieval Literature","Modern Indian Literature"]),
+tp("Architecture",["Harappan Architecture","Mauryan Architecture","Post-Mauryan Period","Gupta Period","Temple Architecture","Nagara Style","Dravida Style","Vesara Style","Cave Architecture","Buddhist Caves","Jaina Caves","Gupta Period Caves","Medieval and Indo-Islamic Architecture","Imperial Style Delhi Sultanate","Provincial Style","Mughal Style","Sikh Style of Architecture","Rajput Architecture","Salient Features","Colonial Architecture & Modern Architecture","European Influence","Indo-Saracenic Architecture","Post-Independence Period","Contribution of Buddhism & Jainism to the Development of Indian Architecture","Rock Cut Architecture","South Indian","Western Indian","Eastern Indian"])),
+sb("Ancient History",
+tp("Pre-Historic",["Stone Age","Chalcolithic Age","Iron Age"]),
+tp("Indus Valley Civilization",["Town Planning","Harappan Society","Characteristics of Major Centers","Harappan Art & Architecture","Decline of Harappan Culture"]),
+tp("Vedic Society",["Original Home of Aryans","Socio-Economic Characters of Vedic Society","Vedic Literature","Social Organization and Varna System","Religion and Thought"]),
+tp("Pre-Mauryan Period",["Mahajanapadas","Haryanka Dynasty","Shishunaga Dynasty","Nanda Dynasty","Jainism and Buddhism","Gautam Buddha","Mahavira","Growth of Jainism and Buddhism"]),
+tp("Mauryan Empire",["Chandragupta and Bindusara","Arthashastra","Megasthenes","Asoka and His Successors","Asoka’s Inscriptions and Sites","Asoka’s Dhamma","Mauryan Administration, Economy, Society and Art","Decline of Maurya"]),
+tp("Post-Mauryan India",["Arrival of Indo-Greeks, Shakas, Parthians & Kushana","Satavahanas and Other Indigenous Dynasties","Schools of Art: Gandhara, Mathura, Amravati"]),
+tp("Imperial Guptas",["Political History of Guptas","Gupta Administration","Development of Art & Culture","Age of Golden Age","Economic Conditions","Urban Centres in Gupta Period"]),
+tp("Harshavardhana",["Sources for Harsha’s Period","Early Life of Harsha","Harsha’s Administration","Important Officials of the Empire","Economy under Harsha","Huen Tsang","Society","Religion"]),
+tp("The Southern Dynasties",["Satavahanas","Pallavas","Chalukyas","Pandyas of Madurai","Chola Dynasty","Rashtrakutas"])),
+sb("Medieval History",
+tp("Delhi Sultanate",["Slave/Ghulam or Mamluk Dynasty","Khilji Dynasty","Tughluq Dynasty","Sayyid Dynasty","Lodi Dynasty"]),
+tp("Struggle for Empire in North India",["Afghans, Rajputs and Mughals"]),
+tp("Mughals",["Babur","Humayun","Akbar","Jahangir","Shah Jahan","Aurangzeb","Later Mughals","Decline of Mughal Empire"]),
+tp("Sur Dynasty",["Sur Dynasty"]),
+tp("Maratha Empire",["Maratha Empire"]),
+tp("Deccan Sultanate",["Ahmednagar Sultanate","Bijapur Sultanate","Berar Sultanate","Golconda Sultanate","Bidar Sultanate"])),
+sb("Modern History",
+tp("Important Modern History Events Before 1857",["Later Mughals","Regional Powers in 18th Century","Carnatic Wars","Battle of Plassey & Buxar","Anglo-Mysore War","Anglo-Punjab War","Socio-Economic Condition of People","European Penetration of India","British Conquest of India","British Policies & Their Impact","Socio-cultural Reform Movements","Uprisings Against British Pre-1857"]),
+tp("Revolt of 1857",["Causes, Leaders and Nature of Revolt of 1857","Suppression of Revolt of 1857","Consequences of Revolt of 1857","Act of Good Governance 1858"]),
+tp("Growth of Nationalism in India (1858–1905)",["Political, Economic & Administrative Unification of the Country","Role of Western Education","Role of Press","Rediscovery of India’s Past","Early Political Movements","Formation of INC","Era of Moderates"]),
+tp("Growth of Militant Nationalism & Revolutionary Activities (1905–1918)",["Swadeshi & Boycott Movement","Surat Split","International Influence","Morley-Minto Reforms","Growth of Communalism"]),
+tp("Beginning of Mass Nationalism (1919–1939)",["Mahatma Gandhi – His Ideas & Leadership","Montagu-Chelmsford Reforms","Rowlatt Act, Satyagraha and Jallianwala Bagh Massacre","Non-Cooperation & Khilafat Movement","Swarajists & No-Changers","Emergence of New Forces","Revolutionary Activity","Simon Commission & Nehru Report","Civil Disobedience Movement","Round Table Conferences","Communal Award & Poona Pact","Participation in Elections to Central Legislature and Provincial Assemblies","Government of India Act, 1935"]),
+tp("Towards Freedom & Partition (1939–1947)",["National Movement During World War II","August Offer","Individual Satyagraha","Growth of Communalism","Peasant Movements","State People’s Struggle","Cripps Mission","Quit India Movement","Wavell Plan","INA & Subhash Chandra Bose","Cabinet Mission","Nationalist Upsurge Post-World War II","Independence with Partition"])),
+sb("Post-Independence India",
+tp("Nation Building",["Partition and Its Aftermath","Integration of Princely States","Linguistic Regionalism in India","Reorganisation of States","Issue of Official Language","Tribal Consolidation","Regional Aspirations"]),
+tp("Foreign Policy",["Non-Aligned Movement","Panchsheel","Wars with Pakistan & China","Nuclear Policy"]),
+tp("Economy",["Planned Development","Green Revolution, Operation Flood & Cooperatives","Agrarian & Land Reforms","Industrial Reforms","LPG Reforms"]),
+tp("Polity",["Era of One-Party Dominance","Emergence of Opposition Parties","Emergency: Crisis of Democratic Order","Rise of Regional Parties","Coalition Era"]),
+tp("Social",["Popular Movements","Communalism","Indian Women Since Independence","Issue of Women and Evolution of Women Movement","Naxalism"]),
+tp("Post-Independence Policy of Science and Technology",["India’s Policy in the Field of Science and Technology","Impact of Economic Reform on Science and Technology in India"])),
+sb("World History",
+tp("Beginning of the Modern World",["Renaissance","Discovery of Sea Routes","Reformation","Counter Reformation","Industrial Revolution","European Nations Settle North America","Rise of Slave Trade"]),
+tp("American War of Independence",["Foundation of American Colonies","Independence of the United States of America","American Revolutionary War","Impact of American Revolution","US Civil War","Impact of Civil War on USA","Global Impact of US Civil War","Impact on India"]),
+tp("French Revolution",["Causes","The Revolution in France","France under Napoleon","Impact of Revolution","Significance of Revolution"]),
+tp("Nationalism in Europe",["Rise of the Nation-State System","Unification of Italy","Unification of Germany"]),
+tp("Rise of Capitalism, Colonialism & Imperialism",["Colonialism","The Age of Imperialism","Imperialism in Asia","Analysis of Colonialism"]),
+tp("World War I",["Causes of the War","Scope & Course of the War","Russian Revolution","Major Events in Pre-Revolution Russia","Causes of Russian Revolution","Course of Revolution","Consequences","Aftermath of the War","Post-Lenin Russia","End of the War & Peace Treaties","Consequences of the War","League of Nations"]),
+tp("World Between the Two Wars",["Europe After the War – Fascism & Nazism","The Great Depression","Emergence of Soviet Union","Nationalist Movements in Asia & Africa","US as a Strong Power"]),
+tp("World War II",["Fascist Aggression & Response of Western Democracies","Outbreak of the War","Theatres of the War","US Entry into the War","Global Nature of the War","The Holocaust","Resistance Movements","After-Effects of the War"]),
+tp("Decolonisation & Redrawal of National Boundaries",["Europe after World War II","Cold War","Rise of Asia & Africa","Developments in West Asia & North Africa","Spread of Communism","Korean War","Vietnam War","Cuban Crisis","Collapse of Soviet Union"]),
+tp("Political Philosophies",["Communism","Capitalism","Socialism"]))
+,
+sb("Indian Society",
+tp("Salient Features of Indian Society and Diversity",["Features of Indian Society","Diversity","Challenges Posed by Diversity","Unity","Pluralism","Unity in Diversity","Inequality and Exclusion","Family System","Examples"]),
+tp("Role of Women and Women’s Organizations",["Women’s Organizations in Indian History","Types of Women’s Organizations","Level of Penetration","19th Century Social Reform Movements and Early Women’s Organisations","Agrarian Struggles and Revolt","Participation in Freedom Struggle","Women’s Organizations","Problems Faced by Women’s Organizations","Larger Vocal Role and Ways to Achieve It","Role of SHGs and Microfinance Institutions"]),
+tp("Population and Associated Issues",["Basic Demography of India","Population Trends in India and Their Implications","Causes and Effects of Overpopulation","Challenges of Population Explosion","Changing Age Structure of Indian Population","Demographic Dividend","Population Aging in India","India’s Population Policy & Initiatives"]),
+tp("Poverty and Developmental Issues",["Concept of Development and Poverty","Types of Poverty","Measurement of Poverty","Causes of Poverty","Poverty as a Social Problem","Socio-Economic Spread of Poverty","Consequences of Poverty","Inequality","Continuation of Vicious Cycle","Worst Affected by Poverty","Problem of Rising Urban Poverty","Poverty Alleviation Initiatives","Policy Shifts from Trickle-Down to Inclusive Development","Poverty-Inequality-Development Nexus"]),
+tp("Urbanization, Problems and Remedies",["Urbanisation Trends in India and Their Implications","Factors Driving Urbanisation","Service Delivery and Challenges","Problems of Urban Areas","Social Consequences of Urbanisation","Impact of Urbanisation in Rural Areas","Urban Planning and Urban Local Bodies","Reforms and Government Initiatives","Problems of Slums"]),
+tp("Effects of Globalization on Indian Society",["Understanding Globalisation","Globalisation & Culture","Factors Driving Globalisation","Globalisation & India","Impact of Globalisation on India","Does Globalisation Cause Poverty?"]),
+tp("Social Empowerment",["Socially Disadvantaged Groups","Meaning and Concept of Social Empowerment","Dimensions of Social Empowerment","Need for Social Empowerment","Government Initiatives","Empowerment in Reality and India’s Experience"]),
+tp("Communalism",["Characteristics of Communalism","Communalism in India in the Past","Communalism in Contemporary India","Causes of Communalism","Consequences of Communalism","Measures to Control & Eradicate Communalism","Secularism as an Antidote to Communalism"]),
+tp("Regionalism",["Concept of Region & Regionalism","Different Forms of Regionalism","Regionalism in India","Causes of Regionalism","Sons of the Soil","Consequences of Regionalism","Federalism & Regionalism","Role of Regional Parties","Measures to Contain Regionalism","Regionalism in the International Sphere"]),
+tp("Secularism",["Concept of Secularism","Indian Model of Secularism","Secularism in India","Nature & Practice of Secularism in India","Uniform Civil Code","Challenges Faced by Secularism in India","Measures to Make India Truly Secular"])),
+sb("World and Indian Geography",
+tp("Geomorphology",["Origin & Evolution of Earth","Interior of the Earth","Distribution of Continents & Oceans","Plate Tectonic Theory","Distribution of Earthquakes & Volcanoes","Rocks & Rock Cycle","Geomorphic Processes","Landforms & Their Evolution","Geological Time Scale"]),
+tp("Oceanography",["Hydrological Cycle","Seafloor Spreading","Ocean Floor Configuration","Temperature & Salinity of Oceans","Movement of Oceans"]),
+tp("Climatology",["Earth’s Atmosphere","Solar Radiation, Heat Budget & Temperature","Atmospheric Circulation & Weather Systems","World Climate"]),
+tp("Soil Geography",["Soil & Soil Contents","Process of Soil Formation","Soil Forming Factors","Types of Soils","Soil Erosion & Conservation"]),
+tp("Distribution of Key Natural Resources",["Types of Resources","Land Resources","Forest Resources","Water Resources","Agricultural Resources","Mineral & Energy Resources"]),
+tp("Location of Industries",["Classification of Industries","Location Based on Raw Material","Labour","Market","Capital","Land","Grants & Financial Incentives","Power","Transport","Water","Communication","Distribution of Major Industries","Agglomeration & Footloose Industries"]),
+tp("Important Geophysical Phenomena",["Earthquakes","Tsunami","Volcanoes","Cyclone","Factors Causing Changes in Critical Geographical Features","Impact of Changing Geographical Features"]),
+tp("Physical Geography of India",["Physiography of India","Drainage System","Climate","Soils in India","Natural Vegetation"]),
+tp("Human Geography",["Demography","Urbanization","Census"]),
+tp("Economic Geography",["Agriculture","Mineral Resources","Energy Resources","Industry","Transport and Communication"]))
+/*GS1-END*/],gsPaper2:[
+sb("Polity",
+tp("Indian Constitution",["Historical Underpinning & Evolution","Regulating Act to Independence Act","Constituent Assembly","Objective Resolution","Enactment & Enforcement of Constitution","Written Constitution","Flexible & Rigid Constitution","Federal & Unitary Features","Parliamentary Form of Government","Amendments","Significant Amendments","Procedure for Amending Constitution","Fundamental Rights","Directive Principles of State Policy","Judicial Review","Universal Adult Franchise","Single Citizenship","Separation of Powers","Basic Structure Doctrine","Basic Structure Judgments & Cases"]),
+tp("Union and States",["7th Schedule","Legislative Functions","Financial Functions","Administrative & Quasi-Judicial Functions","Federal Structure in India","Cooperative & Competitive Federalism","Centre-State Relations","Legislative Relations","Administrative Relations","Financial Relations","Trends in Centre-State Relations","Inter-State Relations","Inter-State Water Disputes","Inter-State Councils","Public Acts, Records and Judicial Proceedings","Inter-State Trade and Commerce","Zonal Councils","Emergency Provisions","Role of Governor","Reports of Commissions"]),
+tp("Local Governance",["Devolution of Powers & Finances","Role of State Government","Role of State Finance Commission","11th & 12th Schedule","Reasons for Ineffective Performance","Panchayat Devolution Index","Steps to Improve Performance"]),
+tp("Separation of Powers",["Doctrine of Separation of Power","Separation of Power in Indian Constitution","Doctrine of Checks & Balances","Provisions for Checks & Balances","Related Judgments"]),
+tp("Dispute Redressal Mechanisms",["RTI","PIL","Tribunals"]),
+tp("Comparison with Other Countries",["Comparison of Indian Constitutional Scheme with Other Countries"]),
+tp("Parliament & State Legislatures",["Structure","Functioning","Conduct of Business","Powers & Privileges","Written Constitution","Blend of Rigidity and Flexibility","Federal System with Unitary Bias","Parliamentary Form of Government","Parliamentary Sovereignty and Judicial Supremacy","Integrated and Independent Judiciary","Fundamental Rights, DPSP and Fundamental Duties","Secular State","Universal Adult Franchise","Single Citizenship","Emergency Provisions","Three-Tier Government","Due Process of Law vs Procedure Established by Law","Impeachment of President"]),
+tp("Executive and Judiciary",["President","Prime Minister","Council of Ministers","Cabinet Secretariat","Governor","Chief Minister","State Council of Ministers","Secretariat","Three-Tier Judiciary","Chief Justice of India","Supreme Court & High Court Judges","Jurisdiction","Cabinet Ministries","Other Ministries","Parliamentary Secretaries"]),
+tp("Pressure Groups",["Characteristics of Pressure Groups","Pressure Groups & Political Parties","Pressure Groups & Interest Groups","Types of Pressure Groups","Functions, Role & Importance","Techniques/Methods","Pressure Groups in India","Shortcomings"]),
+tp("Representation of People’s Act",["Salient Features of Representation of People’s Act"]),
+tp("Constitutional Bodies",["Election Commission","Union Public Service Commission","State Public Service Commission","Finance Commission","National Commission for SCs","National Commission for STs","Special Officer for Linguistic Minorities","Comptroller and Auditor General","Attorney General of India","Advocate General of the State"]),
+tp("Statutory, Regulatory & Quasi-Judicial Bodies",["NITI Aayog","RBI","National Human Rights Commission","State Human Rights Commission","Central Information Commission","Central Vigilance Commission","Central Bureau of Investigation","Lokpal and Lokayuktas","National Commission for Women","National Commission for Backward Classes","National Commission for Minorities","Insurance Regulatory and Development Authority","Securities and Exchange Board of India","Competition Commission of India","Telecom Regulatory Authority of India","Central Electricity Regulatory Commission","Atomic Energy Regulatory Board","Central Pollution Control Board","Medical Council of India","Inland Waterways Authority of India","Central Ground Water Authority","Directorate General of Civil Aviation","Pension Fund Regulatory and Development Authority","Food Safety and Standards Authority of India","Bar Council of India","University Grants Commission","Financial Stability and Development Council","All India Council for Technical Education","National Green Tribunal","Competition Appellate Tribunal","Income-Tax Appellate Tribunal","Cyber Appellate Tribunal","Intellectual Property Appellate Board"])),
+sb("Governance",
+tp("Government Policies & Interventions",["Policies in Health","Policies in Gender","Policies in Education","Policies in Poverty","Policies in Economy","Issues in Design & Implementation","Concerns/Issues","Suggestions for Improvement","Critical Assessment of Centrally Sponsored Schemes","Rationalisation of CSS","Beti Bachao Beti Padhao","Smart City","Swachh Bharat Abhiyan","MGNREGA","Digital India","Make in India","Skill India","PM Jan Dhan Yojana","Start-up India"]),
+tp("Development Processes & Development Industry",["Role of Social Capital Organisations","Indian Context","Classification","Third Sector in Indian Constitution","National Policy on Voluntary Sector 2007","NGOs","Role and Impact of NGOs","Accreditation, Legitimacy & Accountability","Foreign Funding","Self Help Groups","Need for SHGs","Benefits of SHGs","Weaknesses of SHGs","Challenges","Measures to Make SHGs Effective","Kudumbashree","Mahila Arthik Vikas Mahamandal","Societies","Trusts","Religious Endowments","Cooperatives","Need for Cooperatives","Constitutional Provisions","National Policy on Co-operatives 2002","Issues and Challenges in Cooperatives"]),
+tp("Governance, Transparency & Accountability",["Governance","Dimensions of Governance","Good Governance","Aspects of Good Governance","Barriers to Good Governance","Pre-Conditions for Good Governance","How to Ensure Good Governance","E-Governance","Applications","Models","Successes","Limitations","Potential","Recent E-Governance Initiatives","Citizens Charters","Components of Citizens Charters","Features of Citizens Charters","Six Principles","Shortcomings","Measures to Make CC Effective","Sevottam Model","Transparency","Elements & Types of Accountability","Means to Ensure Transparency & Accountability","RTI","Social Audit","Whistleblower Protection Bill","Lokpal & Lokayuktas Act"]),
+tp("Role of Civil Services in a Democracy",["Relationship Between Civil Service and Democracy","Role Played by Civil Services","Advisory Role in Policy Making","Institutionalising Socio-Economic Change","Discharge of Delegated Functions","Administering Law of the Land","Watchdogs","Continuity in Political Instability","Record-Keeping","Channel of Communication","Ailments Afflicting Indian Civil Services","Lack of Professionalism","Poor Capacity Building","Inefficient Incentive Systems","Outdated Rules & Procedures","Systemic Inconsistencies in Promotion","Lack of Transparency & Accountability","Arbitrary & Whimsical Transfers","Political Interference","Administrative Acquiescence","Erosion in Values & Ethics","Redtapism","Elitist Nature","Poor Pay","Tendency to Capture Power","Reforming Bureaucracy","Citizen-Centric Administration","Accountability","Outcome Orientation","Promoting Public Service Values & Ethics"]))
+,
+sb("Social Justice",
+tp("Welfare Schemes for Vulnerable Sections",["Schemes for SCs & STs","Schemes for Minorities","Schemes for Children","Schemes for Elderly","Schemes for Disabled","Schemes for Women","Schemes for Transgender","Performance of Schemes","Mechanisms, Laws, Institutions & Bodies"]),
+tp("Laws and Institutions for Vulnerable Sections",["Protection of Civil Rights Act","SC/ST Prevention of Atrocities Act","National Commission for Scheduled Castes","Scheduled Castes Sub Plan","Rehabilitation Council of India Act","Persons with Disabilities Act","Mental Retardation and Multiple Disabilities Act","National Trust Act","Rights of Persons with Disabilities Act","National Commission for Scheduled Tribes","Tribal Sub Plan","TRIFED","Forest Rights Act","National Commission for Minorities","National Commission for Religious and Linguistic Minorities","Immoral Traffic Prevention Act","Indecent Representation of Women Act","Dowry Prohibition Act","Commission of Sati Prevention Act","Prohibition of Child Marriage Act","Protection of Women from Domestic Violence Act","Juvenile Justice Act","CARA","POCSO Act","Sexual Harassment of Women at Workplace Act","PC&PNDT Act","Gender Budgeting","National Policy for Women","Maternity Benefit Amendment Act","Maintenance and Welfare of Parents and Senior Citizens Act"]),
+tp("Health",["India’s Health Indicators","Weaknesses of Indian Healthcare System","Health Infrastructure","Universal Health Coverage","12th FYP Strategy","Health Insurance","National Family Health Survey","National Health Policy","National Health Mission","Maternal & Adolescent Health","Child Health","Antimicrobial Resistance","Disease Burden in India","Measures for Good Health Outcomes","Government Initiatives"]),
+tp("Education",["Status of Literacy in India","Education Structure in India","Challenges in Education Sector","Reforms Required","Government Initiatives","ASER Report","Financing Education","Subramanian Panel Report"]),
+tp("Human Resource",["Need for Skill Development","Skill Development Initiatives","Challenges in Skilling Landscape","Shortcomings of Current Initiatives","Reforms Required","Steps That Can Be Taken"]),
+tp("Poverty & Hunger",["Relation Between Poverty & Hunger","Distribution of Poverty & Hunger","Magnitude & Trends","Causes of Poverty & Hunger","Impact of Poverty & Malnutrition","MDGs & SDGs","Food and Nutrition Insecurity","Constraints in Reducing Poverty & Hunger","Measures to Reduce Poverty & Hunger","National Food Security Act","Mid-Day Meal Scheme","MGNREGA"])),
+sb("International Relations",
+tp("India and Its Neighbourhood",["India-China Relations","India-Pakistan Relations","India-Myanmar Relations","India-Bhutan Relations","India-Bangladesh Relations","India-Sri Lanka Relations","India-Afghanistan Relations","India-Nepal Relations","India-Maldives Relations"]),
+tp("Foreign Policy and Groupings",["India’s Foreign Policy Doctrines Since 1947","Non-Aligned Movement","Nuclear Doctrine","Gujral Doctrine","Look East to Act East","Think West","Relations with USA","Relations with Russia","Relations with Japan","Central Asian Countries","West Asian Countries","African Countries","Australia & New Zealand","EU & European Countries","Latin American Countries","Pacific Countries","SAARC","BRICS","BBIN & BCIM","BIMSTEC","IBSA","ASEAN & RCEP","India-Africa Forum","SCO","Ashgabat Agreement","FIPIC","IOR-ARC","Mekong Ganga Cooperation","Raisina Dialogue","Heart of Asia Conference","East Asia Summit","G-20","Asian Development Bank","National Security Summit","Wassenaar Arrangement","MTCR","Australia Group","APEC"]),
+tp("Global Policies and India’s Interests",["One Belt One Road","International North-South Transport Corridor","Global Trade War","Global Currency War","Syrian Crisis","UN Reforms","WTO Reforms","South China Sea Conflict","Brexit","Deglobalisation & Protectionism","US Sanctions on Iran","US Pullout from Paris Agreement","H-1B Visa Issue","OPEC Oil Prices"]),
+tp("Indian Diaspora",["Spread of Indian Diaspora","India’s Diaspora Policy","OCI","Pravasi Bharatiya Divas","Know India Programme","LM Singhvi Committee","Role of Indian Diaspora","Dual Nationality","Remittances"]),
+tp("International Institutions",["United Nations & Its Agencies","WTO","World Bank","IMF","World Economic Forum","Commonwealth of Nations"]))
+/*GS2-END*/],
+gsPaper3:[
+sb("Economic Development",
+tp("Indian Economy, Planning, Resources, Growth, Development & Employment",["Meaning of Planning","Need for Planning","Imperative, Indicative & Structural Planning","Objectives of Planning","Indian Planning History","Techniques of Indian Planning","Achievements & Failures of Indian Planning","Shortcomings of Planning","NITI Aayog vs Planning Commission","Types of Resources","Need for Resource Mobilisation","Role of Savings & Investment","Government Resources","Banking Sector & NBFCs","Capital Market","External Sources","Public Borrowing & Public Debt","Challenges in Resource Mobilisation","Steps to Improve Resource Mobilisation","Meaning of Development & Growth","Difference Between Development & Growth","Determinants of Growth & Development","Importance & Limitations of Economic Growth","Jobless Growth","Pro-Poor Growth","Balanced & Unbalanced Growth","Dimensions of Development","Measurement & Indicators of Development","Market-Based Approach","Role of State and Planned Approach","Mixed Economy Approach","Challenges to Development & Growth","Nature of Employment","Employment Terms","Sectoral Distribution of Employment","Quality of Employment","Causes of Lack of Employment","Restructuring of Workforce","Government Initiatives for Employment"]),
+tp("Inclusive Growth",["What Is Inclusive Growth","Elements of Inclusive Growth","Need for Inclusive Growth","Indicators of Inclusive Growth","Challenges in Achieving Inclusive Growth","12th FYP & Inclusive Growth"]),
+tp("Government Budgeting",["Need for Government Budgeting","Components of Government Budget","Revenue Receipts & Revenue Expenditure","Capital Receipts & Capital Expenditure","Changes in Budgetary Process in 2017","Measures of Government Deficit","Revenue Deficit","Fiscal Deficit","Primary Deficit","Fiscal Policy","Deficit Reduction","FRBM Act","Outcome Budget","Zero-Based Budgeting"]),
+tp("Land Reforms",["Rationale for Land Reforms","Components of Land Reforms","Impact of Land Reforms","Problems in Implementation","Success of Land Reforms","Land Leasing","Land Acquisition","Rehabilitation & Resettlement Act"]),
+tp("Liberalisation and Industrial Policy",["Phase of Liberalisation","Impact on Different Sectors","Industrial Policy Before 1991","Industrial Policy After 1991","Phases of Industrial Growth","Link Between Economic Reforms and Outcomes","Weaknesses & Failures of Industrial Policies","National Manufacturing Policy","SEZs","Make in India"]),
+tp("Infrastructure",["Energy","Ports","Roads","Airports","Railways"]),
+tp("Investment Models",["Need for Investment","Sources of Investment","Types of Investment Models","Domestic Investment Models","Public Investment Model","Private Investment Model","Public-Private Participation Model","Foreign Investment Models","FDI","FII","Sector-Specific Investment Models","Cluster-Based Investment Models","Investment Models Followed by India"])),
+sb("Agriculture",
+tp("Crops and Cropping Patterns",["Importance of Cropping Pattern","Types of Cropping Pattern","Reasons for Differences in Cropping Pattern","Factors Influencing Cropping Pattern","Emerging Trends","Long-Run Effects"]),
+tp("Irrigation",["Modes of Irrigation","Sources of Irrigation","Choosing an Irrigation System","Problems Associated with Irrigation","Progress of Irrigation Under Five Year Plans","Environmental Effects of Irrigation","Need for Systemic Irrigation Reforms","Need for National Water Policy"]),
+tp("Agricultural Marketing",["Process of Agricultural Marketing","Marketing Channels","Functionaries","Costs","Role of FCI","Regulated Markets","Warehousing","Cooperative Marketing","Shortcomings of Agricultural Marketing","APMCs","National Agricultural Market","Farmer Producer Organisations","Contract Farming","Futures Trading"]),
+tp("E-Technology and Technology Missions",["E-Technology in the Aid of Farmers","Technology Missions"]),
+tp("Farm Subsidies and MSP",["Agricultural Pricing Policy","Rationale for Subsidies","Types of Subsidies","Effectiveness, Extent & Problems","Clash with WTO Agreements"]),
+tp("Public Distribution System",["Objectives & Significance","Functioning of PDS","Fair Price Shops","FCI","Ration Cards","Aadhaar Linking","Shortcomings of PDS","Need to Improve PDS","Measures to Improve PDS","Government Steps"]),
+tp("Buffer Stocks and Food Security",["Buffer Stock Objectives & Norms","Impact of Government Procurement & Distribution","Need for Food Security","NFSM","Other Food Security Initiatives"]),
+tp("Animal Rearing and Food Processing",["Economics of Animal-Rearing","Scope & Potential of Food Processing","Significance of Food Processing","Location of Food Processing Industries","Constraints and Challenges","Upstream & Downstream Requirements","Supply Chain Management","SAMPADA","12th FYP Initiatives"])),
+sb("Science & Technology",
+tp("Developments and Everyday Applications",["Chemicals in Food","Artificial Sweetening Agents","Food Preservatives","Drugs","Antacid","Antihistamines","Neurologically Active Drugs","Tranquilizers","Analgesics","Antimicrobials","Antibiotics","Antiseptic and Disinfectant","Anti-Fertility Drugs","Cleansing Agents","Soaps","Synthetic Detergents","Glass","Water Softener","Water Purification/Disinfection","Microwave Oven"]),
+tp("Achievements of Indians in Science & Technology",["C.V. Raman","Jagadish Chandra Bose","Satyendra Nath Bose","Meghnad Saha","Homi Jehangir Bhabha","Subrahmanyan Chandrasekhar","A.P.J. Abdul Kalam","Vikram Sarabhai","M. Visvesvaraya","Har Gobind Khorana","Tessy Thomas","C.N.R. Rao"]),
+tp("Indigenization and New Technology",["IT & Computers","Space","Nanotechnology","Biotechnology","Robotics","Defence","Nuclear"]),
+tp("Awareness in Different Fields",["IT & Computers","Space","Nanotechnology","Biotechnology","Robotics","Defence","Nuclear"]),
+tp("Intellectual Property Rights",["Need for IPR","Types of IPR","IPR Regime in India","International Agreements","Geographical Indicators","Evergreening","Compulsory Licensing","Prominent Cases"])),
+sb("Biodiversity & Environment",
+tp("Conservation",["What Is Biodiversity","Types of Biodiversity","Importance of Biodiversity","Reasons for Loss of Biodiversity","Conservation","In-situ & Ex-Situ Conservation","Eco-Sensitive Areas","Ecological Hotspots","National Guidelines, Legislations & Programmes","International Agreements & Groupings"]),
+tp("Environmental Pollution & Degradation",["Types of Pollution & Pollutants","Impact of Pollution & Degradation","Ozone Layer Depletion","Greenhouse Gas Effect & Global Warming","Eutrophication","Desertification","Acid Rain","Hazardous Waste","Causes/Sources of Pollution","Prevention & Control","National Environment Agencies, Legislations & Policies","International Environment Agencies & Agreements"]),
+tp("Environmental Impact Assessment",["What Is EIA","Indian Guidelines & Legislations","EIA Process","Need & Benefits","Shortcomings of EIA in India","Measures to Make EIA Effective"]),
+tp("Disaster Management",["Types of Disasters","Management of Disasters","Community-Level Disaster Management","Government Initiatives"])),
+sb("Security",
+tp("Extremism",["Factors Responsible for Spread of Extremism","Steps to Reduce Extremism Due to Underdevelopment","Naxalism"]),
+tp("Internal Security Challenges",["Threats from Non-State Actors","J&K Separatism","Left Wing Extremism","North East Insurgency","Terrorism in Hinterland & Border Areas","Right Wing Terrorism","Reasons for Spread of Terrorism","State-Sponsored Terrorism","Institutional Framework","NIA","NATGRID","MAC","UAPA","TADA","POTA","NCTC"]),
+tp("Communication Networks and Cyber Security",["Role of Media & Social Networking Sites","Challenges in Managing Social Media","Steps That Can Be Taken","Cyber Security","Threats to Indian Cyber Security","Steps Taken by India","International Cooperation","Cyber Warfare","Terms Associated with Cyber Security"]),
+tp("Money Laundering",["Process of Money Laundering","Impact of Money Laundering","Challenges to Tackle Money Laundering","Steps to Counter Money Laundering","Terms Related to Money Laundering"]),
+tp("Border Security and Organised Crime",["Challenges in Managing Border Security","Coastal & Terrestrial Border Security","Land Boundary Disputes","India’s Border Security Policy","Types of Organised Crime","Challenges in Controlling Organised Crime","Link Between Organised Crime & Terrorism"]),
+tp("Security Forces and Agencies",["Central Armed Police Forces","Central Paramilitary Forces","Intelligence Bureau","Research and Analysis Wing","Other Security & Intelligence Agencies"]))],
+gsPaper4:[
+sb("Ethics and Human Interface",tp("Ethics and Human Interface",["Essence of Ethics","Determinants of Ethics","Consequences of Ethics in Human Actions","Dimensions of Ethics","Ethics in Private Relationships","Ethics in Public Relationships"]),tp("Human Values",["Lessons from Lives and Teachings of Great Leaders","Lessons from Lives and Teachings of Reformers","Lessons from Lives and Teachings of Administrators","Role of Family in Inculcating Values","Role of Society in Inculcating Values","Role of Educational Institutions in Inculcating Values"])),
+sb("Attitude",tp("Attitude",["Content of Attitude","Structure of Attitude","Function of Attitude","Influence on Thought and Behaviour","Relation with Thought and Behaviour","Moral Attitudes","Political Attitudes","Social Influence","Persuasion"])),
+sb("Aptitude and Foundational Values",tp("Aptitude and Foundational Values for Civil Service",["Integrity","Impartiality","Non-partisanship","Objectivity","Dedication to Public Service","Empathy","Tolerance","Compassion Towards Weaker Sections"])),
+sb("Emotional Intelligence",tp("Emotional Intelligence",["Concept of Emotional Intelligence","Utilities of Emotional Intelligence","Application in Administration and Governance"])),
+sb("Moral Thinkers and Philosophers",tp("Contributions of Moral Thinkers and Philosophers",["Indian Moral Thinkers","World Moral Thinkers","Indian Philosophers","World Philosophers","Ethical Teachings and Their Relevance"])),
+sb("Public/Civil Service Values and Ethics",tp("Public/Civil Service Values and Ethics in Public Administration",["Status and Problems","Ethical Concerns & Dilemmas in Government Institutions","Ethical Concerns & Dilemmas in Private Institutions","Laws, Rules, Regulations and Conscience","Accountability","Ethical Governance","Strengthening Ethical and Moral Values","Ethical Issues in International Relations","Ethical Issues in Funding","Corporate Governance"])),
+sb("Probity in Governance",tp("Probity in Governance",["Concept of Public Service","Philosophical Basis of Governance and Probity","Information Sharing and Transparency","Right to Information","Codes of Ethics","Codes of Conduct","Citizens’ Charters","Work Culture","Quality of Service Delivery","Utilisation of Public Funds","Challenges of Corruption"])),
+sb("Case Studies",tp("Case Studies on Above Issues",["Ethical Dilemmas","Governance Issues","Public Service Dilemmas","Conflict Resolution","Integrity-Related Case Studies","Administrative Decision-Making"]))],
+optionalPaper1:[],optionalPaper2:[]},
+interview:[sb("Personality Test",tp("Interview Preparation",["DAF-based preparation","Current affairs","Home state","Educational background","Work experience","Hobbies","Optional subject","Mock interview feedback","Communication and body language"]))]};
+const PAPERS=[["Prelims GS Paper I","Prelims","prelims","gsPaper1"],["Prelims CSAT","Prelims","prelims","csat"],["Mains Essay","Mains","mains","essay"],["Mains GS Paper I","Mains","mains","gsPaper1"],["Mains GS Paper II","Mains","mains","gsPaper2"],["Mains GS Paper III","Mains","mains","gsPaper3"],["Mains GS Paper IV","Mains","mains","gsPaper4"]];
+/* Builds the Paper → Subject → Topic → Subtopic tree and flat list straight from UPSC_SYLLABUS (no pasting needed) */
+function build(){T=PAPERS.map(([n,st,a,b])=>({n,st,su:(UPSC_SYLLABUS[a][b]||[]).map(s=>({n:s.subject,to:s.topics.map(t=>({n:t.topic,s:t.subtopics}))}))}));
+L=[];T.forEach((P,pi)=>P.su.forEach((Su,si)=>Su.to.forEach((To,ti)=>(To.s.length?To.s:[To.n]).forEach((n,xi)=>L.push({k:`${P.n}|${Su.n}|${To.n}|${xi}`,n,pi,si,ti,st:P.st,path:[P.n,Su.n,To.n].join(' › ')})))))}
+const custom=v=>S.cu[v].map(n=>({k:v+':'+n,n,st:v=='I'?'Interview':'Optional',path:v=='I'?'Interview':'Optional '+S.opt}));
+const ALL=()=>L.concat(custom('I'),custom('O'));
+const live=k=>S.run&&S.run.k==k?(Date.now()-S.run.t0)/1e3:0;
+const ag=a=>{const r={s:0,n:a.length,N:0,Lr:0,R:0,C:0};a.forEach(x=>{const v=g(x.k);r.s+=v.sec+live(x.k);r.N+=v.n;r.Lr+=v.l;r.R+=v.r;r.C+=v.n&&v.l&&v.r?1:0});r.p=r.n?Math.round((r.N+r.Lr+r.R)/(3*r.n)*100):0;return r};
+const pb=p=>`<div class="bar"><i style="width:${p}%"></i></div>`;
+const pct=(a,n)=>n?Math.round(a/n*100):0;
+/* ===== ROW ===== */
+function row(x){const v=g(x.k),done=v.n&&v.l&&v.r,st=done?'Completed':(v.n||v.l||v.r)?'In progress':'Not started',k=e(x.k);
+const ck=(f,i,t)=>`<label><input type="checkbox" data-k="${k}" data-f="${f}" ${v[f]?'checked':''}> ${i} ${t}</label>`;
+const sel=(f,a)=>`<select data-k="${k}" data-f="${f}">${a.map(o=>`<option ${v[f]==o?'selected':''}>${o}</option>`).join('')}</select>`;
+return `<div class="row ${done?'done':''}" id="r_${k}"><div class="line"><b>${done?'✅ ':''}${e(x.n)}</b><span class="badge ${done?'c':st=='In progress'?'p':''}">${st}</span></div>
+<div class="line">${ck('n','📖','Notes')}${ck('l','🧠','Learning')}${ck('r','🔁','Revision')}</div>
+<div class="line">⏱ <span data-live="${k}" class="${S.run&&S.run.k==k?'live':''}">${fmt(v.sec+live(x.k))}</span>
+${S.run&&S.run.k==k?`<button class="b pri" data-a="stop">Stop Study</button>`:`<button class="b" data-a="start" data-k="${k}">Start Study</button>`}
+<input type="number" min="0" placeholder="hr" style="width:60px" id="h_${k}"><input type="number" min="0" placeholder="min" style="width:64px" id="m_${k}"><button class="b" data-a="add" data-k="${k}">+ Add</button><button class="b" data-a="pomo" data-k="${k}" title="Pomodoro target">🍅</button>
+<span class="mut">Last studied: ${v.h.length?v.h[v.h.length-1].d:'–'} · Revised: ${v.d||'–'}${v.nx?' · Next: '+v.nx:''}</span></div>
+<div class="line">Confidence ${sel('c',['Low','Medium','High'])} PYQ ${sel('y',['Not asked','Prelims PYQ','Mains PYQ','Both'])}</div>
+<textarea rows="2" placeholder="Personal notes…" data-k="${k}" data-f="t">${e(v.t)}</textarea>
+${v.h.length?`<details><summary class="mut">Session history (${v.h.length})</summary><div class="mut">${v.h.slice(-15).reverse().map(s=>s.d+' – '+fmt(s.s)).join('<br>')}</div></details>`:''}</div>`}
+/* ===== VIEWS ===== */
+function syllabus(st){const P=T.map((p,i)=>[p,i]).filter(a=>a[0].st==st);
+if(!P.length)return `<div class="card">No ${st} syllabus loaded. Go to <b>Settings</b> and paste your syllabus text.</div>`;
+const G={};L.forEach(x=>{for(const key of [''+x.pi,x.pi+'.'+x.si,x.pi+'.'+x.si+'.'+x.ti])(G[key]??=[]).push(x)});
+return `<h2>${st}</h2>`+chips()+P.map(([p,pi])=>{const a=ag(G[pi]||[]);return `<details><summary>${e(p.n)} — ${p.su.length} subjects · ${a.n} subtopics · ${a.p}% · ${fmt(a.s)}</summary><div>${pb(a.p)}`+p.su.map((su,si)=>{const b=ag(G[pi+'.'+si]||[]);
+return `<details><summary>${e(su.n)} <span class="mut">${su.to.length} topics · ${b.n} subtopics · N ${pct(b.N,b.n)}% L ${pct(b.Lr,b.n)}% R ${pct(b.R,b.n)}% · ${fmt(b.s)}</span></summary><div>${pb(b.p)}`+su.to.map((to,ti)=>{const c=ag(G[`${pi}.${si}.${ti}`]||[]);
+return `<details data-lazy="${pi}.${si}.${ti}"><summary>${e(to.n)} <span class="mut">${c.n} · ${c.p}% · ${fmt(c.s)}</span></summary><div></div></details>`}).join('')+'</div></details>'}).join('')+'</div></details>'}).join('')}
+function custList(v){return `<h2>${v=='I'?'Interview / Personality Test':'Optional Subject'}</h2>`+(v=='O'?`<div class="card"><select id="opt">${['','Anthropology','Sociology','Political Science and International Relations','Public Administration','Geography','History','Economics','Psychology','Philosophy','Tamil Literature','Hindi Literature','Other'].map(o=>`<option ${S.opt==o?'selected':''}>${o}</option>`).join('')}</select><p class="mut">Detailed syllabus for this optional subject can be added or edited by the user. Add subjects/topics/subtopics below.</p></div>`:'')+
+`<div class="card line"><input id="newc" placeholder="Add item" style="flex:1">${v=='O'?'<select id="pp"><option>[Paper I]</option><option>[Paper II]</option></select>':''}<button class="b pri" data-a="addc" data-v="${v}">Add</button></div>`+(v=='O'?['[Paper I]','[Paper II]'].map(p=>`<h3>Optional ${p.slice(1,-1)}</h3>`+custom(v).filter(x=>x.n.startsWith(p)).map(row).join('')).join('')+custom(v).filter(x=>!x.n.startsWith('[')).map(row).join(''):custom(v).map(row).join(''))}
+function dash(){const A=ALL(),a=ag(A),by=s=>ag(A.filter(x=>x.st==s));
+const days=new Set(),t0=td(),w0=td(-6);let today=0,week=0;A.forEach(x=>g(x.k).h.forEach(s=>{days.add(s.d);if(s.d==t0)today+=s.s;if(s.d>=w0)week+=s.s}));
+let st=0;for(let i=days.has(t0)?0:1;days.has(td(-i));i++)st++;
+const due=A.filter(x=>g(x.k).nx&&g(x.k).nx<=t0).length,left=S.set.target?Math.ceil((new Date(S.set.target)-new Date())/864e5):'–';
+const sg={};L.forEach(x=>(sg[x.pi+'.'+x.si]??=[]).push(x));const sr=Object.entries(sg).map(([k,v])=>({n:T[v[0].pi].su[v[0].si].n,p:ag(v).p})).sort((a,b)=>a.p-b.p);
+const c=(t,v,s)=>`<div class="card"><div class="mut">${t}</div><div class="big">${v}</div>${s||''}</div>`;
+return `<h2>Dashboard</h2>${bk()}<div class="grid">${c('Overall',a.p+'%',pb(a.p))}${c('Subtopics',a.n)}${c('📖 Notes',pct(a.N,a.n)+'%',a.N+' done')}${c('🧠 Learning',pct(a.Lr,a.n)+'%',a.Lr+' done')}${c('🔁 Revision',pct(a.R,a.n)+'%',a.R+' done')}${c('✅ Fully completed',pct(a.C,a.n)+'%',a.C+' done')}
+${c('Prelims',by('Prelims').p+'%')}${c('Mains',by('Mains').p+'%')}${c('Optional',by('Optional').p+'%')}${c('Interview',by('Interview').p+'%')}${c('⏱ Total time',fmt(a.s))}${c('Today',fmt(today),pb(Math.min(100,today/36/S.set.daily)))}${c('This week',fmt(week))}${c('🔥 Streak',st+' days')}${c('Days to exam',left)}${c('🔁 Revisions due',due)}${c('🍅 Pomodoros today',S.pm.done[t0]||0)}</div>
+<div class="card"><b>Exam pattern</b><table><tr><th>Stage</th><th>Details</th></tr><tr><td>Prelims GS I</td><td>2 hr · 200 marks · 100 Qs · −0.66 · decides Mains cutoff</td></tr><tr><td>Prelims CSAT</td><td>2 hr · 200 marks · 80 Qs · −0.83 · qualifying 33% (66)</td></tr><tr><td>Mains</td><td>9 papers, 3 hr each: A &amp; B qualifying (300 each); Essay, GS I–IV, Optional I–II = 7×250 = 1,750 merit</td></tr><tr><td>Interview</td><td>275 marks · Final merit 2,025</td></tr></table></div>
+<div class="card"><b>Weakest subjects</b>${sr.slice(0,3).map(s=>`<div>${e(s.n)} — ${s.p}%</div>`).join('')||'–'}<br><b>Strongest subjects</b>${sr.slice(-3).reverse().map(s=>`<div>${e(s.n)} — ${s.p}%</div>`).join('')||'–'}</div>
+<div class="card"><b>Time by paper</b>${T.map((p,i)=>`<div>${e(p.n)}: ${fmt(ag(L.filter(x=>x.pi==i)).s)}</div>`).join('')}</div>
+<div class="card"><b>Recently studied</b>${A.filter(x=>g(x.k).h.length).sort((a,b)=>g(b.k).h.slice(-1)[0].d.localeCompare(g(a.k).h.slice(-1)[0].d)).slice(0,5).map(x=>`<div><a href="#" data-a="goto" data-k="${e(x.k)}">${e(x.n)}</a></div>`).join('')||'–'}</div>`}
+function revision(){const t0=td(),A=ALL().filter(x=>g(x.k).nx).sort((a,b)=>g(a.k).nx.localeCompare(g(b.k).nx));
+return `<h2>Revision Planner</h2>`+(A.length?A.map(x=>{const v=g(x.k),o=v.nx<t0,d=v.nx==t0;return `<div class="card line"><span class="badge ${o?'p':d?'c':''}" style="${o?'background:var(--rd)':''}">${o?'Overdue':d?'Today':'Upcoming'} · ${v.nx}</span><b>${e(x.n)}</b><span class="mut">${e(x.path)} · revision #${v.cnt}</span><button class="b pri" data-a="rdone" data-k="${e(x.k)}">Mark revised</button></div>`}).join(''):'<div class="card">No revisions scheduled. Tick “Revision” on a subtopic to schedule one.</div>')}
+const LG={mock:['Test name','Date:date','Paper','Total Qs:number','Correct:number','Wrong:number','Time (min):number','Weak areas','Reflection','Unattempted:number','Subject-wise performance'],ans:['Date:date','Topic','Paper','Question','Word limit:number','Words written:number','Time (min):number','Self-rating','Feedback / improvement','Improvement areas','Model answer / notes link','Revision status'],ca:['Date:date','Source','Topic','Subject tag','Summary','Prelims relevance','Mains relevance','Important facts/data','Prelims MCQ','Mains answer angle','Linked syllabus subtopic','Revision status (Pending/Done)']};
+const LN={mock:'🎯 Mock Tests',ans:'✍️ Answer Writing',ca:'📰 Current Affairs'};
+function logs(){return Object.keys(LG).map(t=>{const R=S.logs[t]||[];let extra='';
+if(t=='mock'&&R.length){const sc=R.map(r=>r[4]*2-r[5]*.66);extra=`<p class="mut">Tests: ${R.length} · Avg score (GS scale): ${(sc.reduce((a,b)=>a+b,0)/R.length).toFixed(1)} · Best: ${Math.max(...sc).toFixed(1)} · Latest accuracy: ${pct(+R.at(-1)[4],(+R.at(-1)[4])+(+R.at(-1)[5]))}%</p>`}
+if(t=='ans'&&R.length)extra=`<p class="mut">Answers: ${R.length} · Avg words: ${Math.round(R.reduce((a,r)=>a+(+r[5]||0),0)/R.length)} · Avg time: ${Math.round(R.reduce((a,r)=>a+(+r[6]||0),0)/R.length)} min · This week: ${R.filter(r=>r[0]>=td(-6)).length}</p>`;
+return `<div class="card"><h3>${LN[t]}</h3><div class="fg">${LG[t].map((f,i)=>{const[n,ty]=f.split(':');return `<input id="lg_${t}_${i}" type="${ty||'text'}" placeholder="${n}" title="${n}">`}).join('')}</div><p><button class="b pri" data-a="addlog" data-t="${t}">Add</button></p>${extra}
+<div style="overflow-x:auto"><table><tr>${LG[t].map(f=>`<th>${f.split(':')[0]}</th>`).join('')}<th></th></tr>${R.map((r,j)=>`<tr>${r.map(c=>`<td>${e(c)}</td>`).join('')}<td><button class="b" data-a="dellog" data-t="${t}" data-j="${j}">✕</button></td></tr>`).join('')}</table></div></div>`}).join('')}
+function pomo(){const p=S.pm,s=S.set,sel=p.sel?(ALL().find(x=>x.k==p.sel)||{}).n:'none (click 🍅 on a subtopic)';
+return `<h2>🍅 Pomodoro</h2><div class="card"><div class="big" id="pt">${pfmt()}</div><p>${p.mode=='f'?'Focus':'Break'} · Target: <b>${e(sel)}</b></p><button class="b pri" data-a="pstart">${p.on?'Pause':'Start'}</button> <button class="b" data-a="preset">Reset</button>
+<p class="mut">Today: ${p.done[td()]||0} sessions · This week: ${Object.entries(p.done).filter(([d])=>d>=td(-6)).reduce((a,[,n])=>a+n,0)}</p></div>
+<div class="card line">Focus <input type="number" id="fm" value="${s.fm}" style="width:70px"> Short break <input type="number" id="bm" value="${s.bm}" style="width:70px"> Long break <input type="number" id="lm" value="${s.lm}" style="width:70px"><button class="b" data-a="psave">Save</button></div>`}
+const pfmt=()=>{const p=S.pm,r=p.on?Math.max(0,Math.round((p.end-Date.now())/1e3)):(p.left??S.set.fm*60);return String(Math.floor(r/60)).padStart(2,'0')+':'+String(r%60).padStart(2,'0')};
+function settings(){return `<h2>Settings</h2><div class="card fg"><label>Target exam date<br><input type="date" id="tg" value="${S.set.target}"></label><label>Daily target (hours)<br><input type="number" id="dl" value="${S.set.daily}"></label><label>Weekly target (hours)<br><input type="number" id="wk" value="${S.set.weekly??40}"></label></div>
+<div class="card fg"><label>Optional subject<br><select id="opt">${['','Anthropology','Sociology','Political Science and International Relations','Public Administration','Geography','History','Economics','Psychology','Philosophy','Tamil Literature','Hindi Literature','Other'].map(o=>`<option ${S.opt==o?'selected':''}>${o}</option>`).join('')}</select></label><label>Dark mode<br><button class="b" onclick="$('#dk').click()">Toggle</button></label><label>Pomodoro focus (min)<br><input type="number" id="fm" value="${S.set.fm}"></label><label>Short break (min)<br><input type="number" id="bm" value="${S.set.bm}"></label><label>Long break (min)<br><input type="number" id="lm" value="${S.set.lm}"></label><label>&nbsp;<br><button class="b pri" data-a="psave">Save Pomodoro</button></label></div>
+<div class="card line"><button class="b" data-a="exp">Export JSON</button><label class="b">Import JSON<input type="file" id="imp" hidden accept=".json"></label><button class="b" data-a="reset" style="color:var(--rd)">Reset progress</button></div>`}
+/* ===== SYLLABUS MEMORY: flashcards, blank recall, topic recall, structure, quiz, map (all generated from UPSC_SYLLABUS) ===== */
+const FACTS=[["How many papers are there in UPSC Mains?","9","7","8","10"],["What is the total mark of the UPSC Interview?","275","200","250","300"],["Which GS paper includes Ethics, Integrity and Aptitude?","GS IV","GS I","GS II","GS III"],["What is the minimum qualifying percentage for CSAT?","33%","25%","40%","50%"],["What is the final merit total?","2,025","1,750","2,000","2,250"],["How many Mains written marks count for merit?","1,750","1,500","1,800","2,025"],["How many marks is each merit paper in Mains (Essay, GS, Optional)?","250","200","300","150"],["How many marks is each qualifying language paper in Mains?","300","250","200","100"],["How many questions are in Prelims GS Paper I?","100","80","120","90"],["How many questions are in CSAT?","80","100","60","90"],["Marks per question in Prelims GS Paper I?","2","1","2.5","3"],["Marks per question in CSAT?","2.5","2","1.5","3"],["Negative marking per wrong answer in GS Paper I?","0.66","0.33","0.5","1"],["Negative marking per wrong answer in CSAT?","0.83","0.66","0.33","0.5"],["Duration of each Mains paper?","3 hours","2 hours","2.5 hours","4 hours"],["Duration of each Prelims paper?","2 hours","3 hours","1.5 hours","2.5 hours"],["Which Prelims paper decides the Mains cutoff?","GS Paper I","CSAT","Both","Neither"],["Is the Essay paper qualifying or merit?","Merit","Qualifying","Both","Neither"],["Which Mains papers are qualifying?","Indian Language and English","Essay and GS I","Optional I and II","GS IV and Essay"],["How many Optional subject papers are there in Mains?","2","1","3","4"],["Do Prelims marks count towards the final merit list?","No","Yes","Only GS I","Only CSAT"],["What is the total mark of CSAT?","200","250","100","300"]];
+let M={m:'fc',i:0,f:0,flt:'All',deck:null,bl:null,tr:null,q:null};
+const shuf=a=>a.map(x=>[Math.random(),x]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]);
+function cards(){const c=[];T.forEach(P=>{if(P.su.length)c.push({id:P.n,st:P.st,q:`Name the subjects under ${P.n}.`,a:P.su.map(s=>s.n).join(', ')});P.su.forEach(s=>c.push({id:P.n+'|'+s.n,st:P.st,q:`Name the topics under ${s.n} (${P.n}).`,a:s.to.map(t=>t.n).join('; ')}))});FACTS.forEach((f,i)=>c.push({id:'f'+i,st:'Facts',q:f[0],a:f[1]}));return c.filter(x=>M.flt=='All'||x.st==M.flt)}
+const deck=()=>M.deck||(M.deck=cards());
+function newQuiz(){const names=PAPERS.map(p=>p[0]),l=[];T.forEach(P=>P.su.forEach(s=>{const o=[P.n,...shuf(names.filter(n=>n!=P.n)).slice(0,3)];l.push({q:`Which paper includes the subject “${s.n}”?`,r:P.n,o:shuf(o)})}));FACTS.forEach(f=>l.push({q:f[0],r:f[1],o:shuf(f.slice(1))}));M.q={l:shuf(l).slice(0,50),i:0,s:0,a:-1}}
+function memory(){const mm=[['fc','Flashcards'],['bl','Blank Recall'],['tr','Topic Recall'],['ps','Paper Structure'],['qz','Quiz'],['mp','Syllabus Map']];S.mem??={};
+let h=`<h2>🧠 Syllabus Memory</h2><div class="line" style="margin-bottom:10px">${mm.map(([k,n])=>`<button class="b ${M.m==k?'pri':''}" data-m="mode" data-v="${k}">${n}</button>`).join('')}</div><div class="card">`;
+if(M.m=='fc'){const D=deck(),c=D[M.i%D.length||0];h+=`<div class="line">Filter <select id="flt">${['All','Prelims','Mains','Facts'].map(o=>`<option ${M.flt==o?'selected':''}>${o}</option>`).join('')}</select><button class="b" data-m="shuf">Shuffle</button><span class="mut">Card ${D.length?M.i%D.length+1:0}/${D.length} · known ${D.filter(x=>S.mem[x.id]==1).length} · need revision ${D.filter(x=>S.mem[x.id]==2).length}</span></div>`;
+h+=c?`<div class="card" style="margin-top:10px;min-height:110px"><div class="mut">${e(c.st)}</div><div style="font-size:18px">${M.f?e(c.a):e(c.q)}</div></div><div class="line"><button class="b" data-m="flip">Flip</button><button class="b pri" data-m="known">I know this</button><button class="b" data-m="need">Need revision</button><button class="b" data-m="next">Next</button></div>`:'No cards.'}
+else if(M.m=='bl'){if(!M.bl){const pool=L.filter(x=>x.n.split(' ').some(w=>w.length>4));if(!pool.length)return h+'No data</div>';const x=pool[Math.floor(Math.random()*pool.length)],ws=x.n.split(' '),c=ws.filter(w=>w.length>4),w=c[Math.floor(Math.random()*c.length)];M.bl={path:x.path,t:ws.map(v=>v==w?'______':v).join(' '),w:w.replace(/[^\w&-]/g,''),r:0,ok:null}}const b=M.bl;
+h+=`<div class="mut">${e(b.path)}</div><p style="font-size:18px">${e(b.t)}</p><div class="line"><input id="bla" placeholder="Missing word"><button class="b pri" data-m="blc">Check</button><button class="b" data-m="blr">Reveal</button><button class="b" data-m="next">New blank</button></div><p>${b.ok===true?'✅ Correct':b.ok===false?'❌ Try again':''} ${b.r?'<b>'+e(b.w)+'</b>':''}</p>`}
+else if(M.m=='tr'){if(!M.tr){const su=[];T.forEach(P=>P.su.forEach(s=>su.push([P.n,s])));if(!su.length)return h+'No data</div>';M.tr={s:su[Math.floor(Math.random()*su.length)],r:0}}const[pn,s]=M.tr.s;h+=`<div class="mut">${e(pn)}</div><p style="font-size:18px">Recall all major topics under <b>${e(s.n)}</b>.</p>${M.tr.r?'<ul>'+s.to.map(t=>`<li>${e(t.n)}</li>`).join('')+'</ul>':''}<div class="line"><button class="b" data-m="trr">Reveal answer</button><button class="b pri" data-m="next">Next subject</button></div>`}
+else if(M.m=='ps'){h+=`<b>UPSC CSE</b><ul><li><b>Prelims</b> (screening; marks not counted in merit): GS Paper I – 200 marks, 100 Qs, 2 hr, −0.66 · CSAT – 200 marks, 80 Qs, 2 hr, −0.83, qualifying 33%</li><li><b>Mains</b>: 9 papers, 3 hr each – Paper A Indian Language (300, qualifying), Paper B English (300, qualifying), Essay 250, GS I–IV 250 each, Optional I and II 250 each = 1,750 merit marks</li><li><b>Interview</b> (Personality Test): 275 marks → final merit 2,025</li></ul>`+T.map(P=>`<details><summary>${e(P.n)} — ${P.su.length} subjects</summary><div>${e(P.su.map(s=>s.n).join(', '))||'—'}</div></details>`).join('')}
+else if(M.m=='qz'){if(!M.q)newQuiz();const q=M.q,c=q.l[q.i];if(!c)h+=`<div class="big">Score ${q.s}/${q.l.length}</div><p class="mut">Best: ${S.mem.best||0}</p><button class="b pri" data-m="qr">New quiz</button>`;else h+=`<div class="mut">Question ${q.i+1}/${q.l.length} · score ${q.s}</div><p style="font-size:18px">${e(c.q)}</p>${c.o.map((o,j)=>`<div><button class="b" style="margin:3px 0;${q.a>=0&&o==c.r?'background:var(--gl);border-color:var(--g)':q.a==j?'border-color:var(--rd)':''}" data-m="qa" data-j="${j}">${String.fromCharCode(65+j)}. ${e(o)}</button></div>`).join('')}${q.a>=0?`<p>${c.o[q.a]==c.r?'✅ Correct.':'❌ Wrong.'} Answer: <b>${e(c.r)}</b></p><button class="b pri" data-m="qn">Next</button>`:''}`}
+else{h+=`<details open><summary>UPSC CSE</summary>`+['Prelims','Mains'].map(st=>`<details><summary>${st}</summary>`+T.filter(P=>P.st==st).map(P=>`<details><summary>${e(P.n)}</summary>`+P.su.map(s=>`<details><summary>${e(s.n)}</summary><ul>${s.to.map(t=>`<li>${e(t.n)}</li>`).join('')}</ul></details>`).join('')+'</details>').join('')+'</details>').join('')+'<details><summary>Interview (Personality Test, 275 marks)</summary></details></details>'}
+return h+'</div>'}
+document.addEventListener('click',ev=>{const b=ev.target.closest('[data-m]');if(!b)return;const a=b.dataset.m;
+if(a=='mode'){M={...M,m:b.dataset.v,i:0,f:0,bl:null,tr:null,q:null}}
+else if(a=='flip')M.f=!M.f;
+else if(a=='known'||a=='need'){const D=deck();S.mem[D[M.i%D.length].id]=a=='known'?1:2;save();M.i++;M.f=0}
+else if(a=='next'){M.i++;M.f=0;M.bl=null;M.tr=null}
+else if(a=='shuf'){M.deck=shuf(cards());M.i=0;M.f=0}
+else if(a=='blc'){const v=$('#bla').value.trim().toLowerCase();M.bl.ok=v==M.bl.w.toLowerCase()}
+else if(a=='blr')M.bl.r=1;
+else if(a=='trr')M.tr.r=1;
+else if(a=='qa'){if(M.q.a<0){M.q.a=+b.dataset.j;const c=M.q.l[M.q.i];if(c.o[M.q.a]==c.r)M.q.s++}}
+else if(a=='qn'){M.q.i++;M.q.a=-1;if(M.q.i>=M.q.l.length){S.mem.best=Math.max(S.mem.best||0,M.q.s);save()}}
+else if(a=='qr')M.q=null;
+$('#m').innerHTML=memory()});
+document.addEventListener('change',ev=>{if(ev.target.id=='flt'){M.flt=ev.target.value;M.deck=null;M.i=0;M.f=0;$('#m').innerHTML=memory()}});
+/* ===== FILTER CHIPS, BACKUP REMINDER, ANALYTICS ===== */
+let F='All';const FK=['All','Incomplete','Notes done','Learning done','Revision done','Fully completed','Pending revision','Low confidence','High confidence','Studied today','Not studied yet','Prelims PYQ','Mains PYQ'];
+const pf=x=>{const v=g(x.k),t=td();return !!({All:1,Incomplete:!(v.n&&v.l&&v.r),'Notes done':v.n,'Learning done':v.l,'Revision done':v.r,'Fully completed':v.n&&v.l&&v.r,'Pending revision':v.nx&&v.nx<=t,'Low confidence':v.c=='Low','High confidence':v.c=='High','Studied today':v.h.some(s=>s.d==t),'Not studied yet':!v.sec,'Prelims PYQ':v.y=='Prelims PYQ'||v.y=='Both','Mains PYQ':v.y=='Mains PYQ'||v.y=='Both'}[F])};
+const chips=()=>`<div class="line" style="margin:8px 0">${FK.map(k=>`<button class="b ${F==k?'pri':''}" data-ch="${k}">${k}</button>`).join('')}</div>`;
+document.addEventListener('click',ev=>{const b=ev.target.closest('[data-ch]');if(b){F=b.dataset.ch;redraw()}});
+const bk=()=>!S.bk||new Date(td())-new Date(S.bk)>12096e5?'<div class="card" style="border-color:var(--am)">💾 Backup reminder: export your data from Settings.</div>':'';
+function analytics(){const A=ALL(),a=ag(A),t0=td(),sg={},tg={},days=new Set();L.forEach(x=>{(sg[x.pi+'.'+x.si]??=[]).push(x);(tg[x.pi+'.'+x.si+'.'+x.ti]??=[]).push(x)});A.forEach(x=>g(x.k).h.forEach(s=>days.add(s.d)));let st=0;for(let i=days.has(t0)?0:1;days.has(td(-i));i++)st++;
+const su=Object.values(sg).map(v=>({n:T[v[0].pi].su[v[0].si].n,...ag(v)})),tps=Object.values(tg).map(v=>({n:T[v[0].pi].su[v[0].si].to[v[0].ti].n,...ag(v)})),by=s=>ag(A.filter(x=>x.st==s)),
+rw=r=>r.map(x=>`<div class="line" style="justify-content:space-between"><span>${e(x.n)}</span><span class="mut">${x.p}% · ${fmt(x.s)}</span></div>`).join('')||'–',
+wd=[...Array(7)].map((_,i)=>{const d=td(i-6);let s=0;A.forEach(x=>g(x.k).h.forEach(h=>{if(h.d==d)s+=h.s}));return[d.slice(5),s]}),mx=Math.max(1,...wd.map(w=>w[1])),wk=wd.reduce((p,w)=>p+w[1],0),
+byS=[...su].sort((a,b)=>b.s-a.s),byP=[...su].sort((a,b)=>a.p-b.p),mock=S.logs.mock||[],ans=S.logs.ans||[],ca=S.logs.ca||[],
+acc=r=>pct(+r[4],(+r[4])+(+r[5])),mp={};mock.forEach(r=>(mp[r[2]||'?']??=[]).push(acc(r)));
+const c=(t,v,x)=>`<div class="card"><div class="mut">${t}</div><div class="big">${v}</div>${x||''}</div>`;
+return `<h2>📈 Analytics</h2><div class="grid">${c('Overall',a.p+'%',pb(a.p))}${c('Prelims',by('Prelims').p+'%',pb(by('Prelims').p))}${c('Mains',by('Mains').p+'%',pb(by('Mains').p))}${c('Total time',fmt(a.s))}${c('Streak',st+' days')}${c('Days to exam',S.set.target?Math.ceil((new Date(S.set.target)-new Date())/864e5):'–')}</div>
+<div class="card"><b>Notes vs Learning vs Revision</b><div>📖 Notes ${pct(a.N,a.n)}%${pb(pct(a.N,a.n))}🧠 Learning ${pct(a.Lr,a.n)}%${pb(pct(a.Lr,a.n))}🔁 Revision ${pct(a.R,a.n)}%${pb(pct(a.R,a.n))}</div><div class="mut">Fully completed ${a.C} · pending ${a.n-a.C}</div></div>
+<div class="card"><b>Weekly study time</b> <span class="mut">${fmt(wk)} of ${S.set.weekly||40} hr target</span>${pb(Math.min(100,wk/36/(S.set.weekly||40)))}<svg viewBox="0 0 290 110" style="width:100%;max-width:430px">${wd.map((w,i)=>`<rect x="${i*40+8}" y="${90-w[1]/mx*80}" width="28" height="${w[1]/mx*80}" rx="4" fill="#2e9e6a"/><text x="${i*40+22}" y="104" font-size="9" text-anchor="middle" fill="currentColor">${w[0]}</text>`).join('')}</svg></div>
+<div class="card"><b>Subject-wise progress</b>${su.map(x=>`<div class="line" style="justify-content:space-between"><span>${e(x.n)}</span><span class="mut">${x.p}%</span></div>${pb(x.p)}`).join('')||'–'}</div>
+<div class="card"><b>Weakest subjects</b>${rw(byP.slice(0,5))}<br><b>Strongest subjects</b>${rw(byP.slice(-5).reverse())}</div>
+<div class="card"><b>Time per paper</b>${rw(T.map((P,i)=>({n:P.n,...ag(L.filter(x=>x.pi==i))})))}<br><b>Time per subject (top 10)</b>${rw(byS.slice(0,10))}<br><b>Time per topic (top 10)</b>${rw([...tps].sort((a,b)=>b.s-a.s).slice(0,10))}</div>
+<div class="card"><b>Most studied</b>${rw(byS.slice(0,5))}<br><b>Least studied</b>${rw(byS.slice(-5).reverse())}</div>
+<div class="card"><b>Pending revisions</b>${A.filter(x=>g(x.k).nx&&g(x.k).nx<=t0).slice(0,10).map(x=>`<div>${e(x.n)} · due ${g(x.k).nx}</div>`).join('')||'None due'}</div>
+<div class="card"><b>Mock-test performance</b> ${mock.length?mock.map(r=>`<div class="line" style="justify-content:space-between"><span>${e(r[0])} (${e(r[2])})</span><span class="mut">${acc(r)}%</span></div>${pb(acc(r))}`).join('')+'<b>By paper</b>'+Object.entries(mp).map(([k,v])=>`<div>${e(k)}: avg accuracy ${Math.round(v.reduce((a,b)=>a+b,0)/v.length)}%</div>`).join(''):'No tests logged'}</div>
+<div class="card"><b>Answer writing</b> ${ans.length} answers · this week ${ans.filter(r=>r[0]>=td(-6)).length}${['Poor','Average','Good','Excellent'].map(k=>`<div>${k}: ${ans.filter(r=>(r[7]||'').toLowerCase()==k.toLowerCase()).length}</div>`).join('')}</div>
+<div class="card"><b>Current affairs</b> ${ca.length} items · revised ${ca.filter(r=>/done/i.test(r[r.length-1])).length} · pending ${ca.filter(r=>!/done/i.test(r[r.length-1])).length}</div>`}
+const V={dash,analytics,memory,prelims:()=>syllabus('Prelims'),mains:()=>syllabus('Mains'),interview:()=>custList('I'),optional:()=>custList('O'),revision,logs,pomo,settings};
+const NAMES={dash:'🏠 Dashboard',prelims:'📘 Prelims',mains:'📗 Mains',interview:'🎤 Interview',optional:'🎓 Optional',memory:'🧠 Syllabus Memory',analytics:'📈 Analytics',revision:'📅 Revision',logs:'📊 Tests · Writing · CA',pomo:'🍅 Pomodoro',settings:'⚙️ Settings'};
+let cur='dash';
+function render(){const q=$('#q').value.trim().toLowerCase();
+if(q){const r=ALL().filter(x=>(x.n+' '+x.path+' '+g(x.k).t).toLowerCase().includes(q)&&pf(x)).slice(0,40);$('#m').innerHTML=`<h2>Search: ${r.length} result(s)</h2>`+chips()+r.map(x=>`<div class="mut">${e(x.path)}</div>`+row(x)).join('')}
+else{const f=document.activeElement;if(f&&f.closest&&f.closest('#m')&&/INPUT|TEXTAREA/.test(f.tagName)&&cur!='settings'&&cur!='pomo')return;$('#m').innerHTML=V[cur]()}
+$('#nav').innerHTML='<h1>UPSC CSE Tracker</h1>'+Object.entries(NAMES).map(([k,n])=>`<button class="${k==cur?'on':''}" data-a="nav" data-k="${k}">${n}</button>`).join('')}
+function openRows(det){if(det.dataset.lazy&&!det.dataset.done){det.dataset.done=1;const[a,b,c]=det.dataset.lazy.split('.');det.lastElementChild.innerHTML=L.filter(x=>x.pi==a&&x.si==b&&x.ti==c&&pf(x)).map(row).join('')}}
+document.addEventListener('toggle',ev=>{if(ev.target.open)openRows(ev.target)},true);
+function stopRun(){if(!S.run)return;const s=Math.round((Date.now()-S.run.t0)/1e3),v=it(S.run.k);v.sec+=s;v.h.push({d:td(),s});S.run=null}
+const redraw=()=>{save();const y=scrollY,open=[...document.querySelectorAll('details[open]')].map(d=>d.dataset.lazy).filter(Boolean);render();open.forEach(l=>{const d=document.querySelector(`[data-lazy="${l}"]`);if(d){d.open=true;openRows(d)}});scrollTo(0,y)};
+function addSec(k,s){if(s<=0)return;const v=it(k);v.sec+=s;v.h.push({d:td(),s})}
+document.addEventListener('click',ev=>{const b=ev.target.closest('[data-a]');if(!b)return;const a=b.dataset.a,k=b.dataset.k;
+if(a=='nav'){cur=k;$('#q').value='';render()}
+else if(a=='start'){stopRun();S.run={k,t0:Date.now()};redraw()}
+else if(a=='stop'){stopRun();redraw()}
+else if(a=='add'){const h=+$('#h_'+CSS.escape(k)).value||0,m=+$('#m_'+CSS.escape(k)).value||0;addSec(k,h*3600+m*60);redraw()}
+else if(a=='pomo'){S.pm.sel=k;save();alert('Pomodoro target set.')}
+else if(a=='addc'){let v=$('#newc').value.trim();if(v&&$('#pp'))v=$('#pp').value+' '+v;if(v&&!S.cu[b.dataset.v].includes(v)){S.cu[b.dataset.v].push(v);redraw()}}
+else if(a=='rdone'){const v=it(k);v.cnt++;v.d=td();v.nx=td(INT[Math.min(v.cnt-1,4)]);redraw()}
+else if(a=='goto'){const x=ALL().find(z=>z.k==k);$('#q').value=x.n;render()}
+else if(a=='addlog'){const t=b.dataset.t,r=LG[t].map((_,i)=>$(`#lg_${t}_${i}`).value);(S.logs[t]??=[]).push(r);redraw()}
+else if(a=='dellog'){S.logs[b.dataset.t].splice(+b.dataset.j,1);redraw()}
+else if(a=='pstart'){const p=S.pm;if(p.on){p.left=Math.round((p.end-Date.now())/1e3);p.on=0}else{p.end=Date.now()+(p.left??S.set.fm*60)*1e3;p.on=1}redraw()}
+else if(a=='preset'){S.pm={...S.pm,on:0,left:undefined,mode:'f'};redraw()}
+else if(a=='psave'){['fm','bm','lm'].forEach(f=>S.set[f]=+$('#'+f).value||S.set[f]);S.pm.left=undefined;redraw()}
+else if(a=='sylsave'){S.syl=$('#syl').value;build();redraw();alert('Syllabus loaded: '+L.length+' subtopics')}
+else if(a=='exp'){const u=URL.createObjectURL(new Blob([JSON.stringify(S)],{type:'application/json'})),l=document.createElement('a');l.href=u;l.download='upsc-tracker-backup.json';l.click();S.bk=td();save()}
+else if(a=='reset'){if(confirm('Erase ALL progress, notes and logs?')){S.items={};S.logs={};S.run=null;S.pm.done={};redraw()}}});
+document.addEventListener('change',ev=>{const t=ev.target;
+if(t.id=='opt'){S.opt=t.value;redraw();return}if(t.id=='tg'){S.set.target=t.value;save();return}if(t.id=='dl'){S.set.daily=+t.value||6;save();return}if(t.id=='wk'){S.set.weekly=+t.value||40;save();return}
+if(t.id=='imp'){const r=new FileReader();r.onload=()=>{try{S=JSON.parse(r.result);build();redraw()}catch(x){alert('Invalid file')}};r.readAsText(t.files[0]);return}
+const f=t.dataset.f,k=t.dataset.k;if(!f)return;const v=it(k);
+if(t.type=='checkbox'){v[f]=t.checked?1:0;
+if(f=='r'){if(t.checked){const a=prompt('Next revision in how many days? (3 / 7 / 15 / 30) or enter a date YYYY-MM-DD','3');v.d=td();v.nx=/^\d{4}-/.test(a||'')?a:td(parseInt(a)||3);v.cnt=0}else v.nx=''}}
+else v[f]=t.value;redraw()});
+$('#q').addEventListener('input',render);
+$('#dk').onclick=()=>{S.dark=!S.dark;document.documentElement.dataset.theme=S.dark?'dark':'light';save()};
+if(S.dark!=null)document.documentElement.dataset.theme=S.dark?'dark':'light';
+/* ===== TICKER: live study timer + pomodoro ===== */
+function beep(){try{const c=new AudioContext(),o=c.createOscillator();o.connect(c.destination);o.start();setTimeout(()=>o.stop(),400)}catch(x){}}
+setInterval(()=>{if(S.run){document.querySelectorAll(`[data-live="${CSS.escape(S.run.k)}"]`).forEach(n=>n.textContent=fmt(g(S.run.k).sec+live(S.run.k)))}
+const p=S.pm;if(p.on&&Date.now()>=p.end){p.on=0;beep();if(p.mode=='f'){if(p.sel)addSec(p.sel,S.set.fm*60);p.done[td()]=(p.done[td()]||0)+1;p.n++;p.mode='b';p.left=(p.n%4==0?S.set.lm:S.set.bm)*60}else{p.mode='f';p.left=S.set.fm*60}save();alert(p.mode=='b'?'Focus session done — take a break!':'Break over — back to focus!');redraw()}
+const pt=$('#pt');if(pt)pt.textContent=pfmt()},1000);
+addEventListener('beforeunload',()=>{save()});S.set.target||='2028-05-25';S.set.weekly??=40;
+build();render();
+</script></body></html>
